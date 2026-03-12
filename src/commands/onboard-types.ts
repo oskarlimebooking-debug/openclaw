@@ -53,6 +53,7 @@ export type AuthChoice =
   | "qianfan-api-key"
   | "modelstudio-api-key-cn"
   | "modelstudio-api-key"
+  | "merlin"
   | "custom-api-key"
   | "skip";
 export type AuthChoiceGroupId =
@@ -84,6 +85,7 @@ export type AuthChoiceGroupId =
   | "xai"
   | "volcengine"
   | "byteplus"
+  | "merlin"
   | "custom";
 export type GatewayAuthChoice = "token" | "password";
 export type ResetScope = "config" | "config+creds+sessions" | "full";
@@ -144,6 +146,8 @@ export type OnboardOptions = {
   qianfanApiKey?: string;
   modelstudioApiKeyCn?: string;
   modelstudioApiKey?: string;
+  merlinEmail?: string;
+  merlinPassword?: string;
   customBaseUrl?: string;
   customApiKey?: string;
   customModelId?: string;

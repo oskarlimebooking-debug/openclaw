@@ -44,6 +44,20 @@ import type {
   UpdateAvailable,
 } from "./types.ts";
 
+async function loadChatModelCatalog(host: OpenClawApp) {
+  if (!host.client) {
+    return;
+  }
+  try {
+    const result = await host.client.request<{
+      models: Array<{ id: string; name: string; provider: string }>;
+    }>("models.list", {});
+    host.chatModelCatalog = Array.isArray(result?.models) ? result.models : [];
+  } catch {
+    // Non-critical; model picker will just be empty.
+  }
+}
+
 function isGenericBrowserFetchFailure(message: string): boolean {
   return /^(?:typeerror:\s*)?(?:fetch failed|failed to fetch)$/i.test(message.trim());
 }
@@ -224,6 +238,7 @@ export function connectGateway(host: GatewayHost) {
       void loadToolsCatalog(host as unknown as OpenClawApp);
       void loadNodes(host as unknown as OpenClawApp, { quiet: true });
       void loadDevices(host as unknown as OpenClawApp, { quiet: true });
+      void loadChatModelCatalog(host as unknown as OpenClawApp);
       void refreshActiveTab(host as unknown as Parameters<typeof refreshActiveTab>[0]);
     },
     onClose: ({ code, reason, error }) => {

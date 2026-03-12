@@ -294,6 +294,34 @@ export function resolveModelRefFromString(params: {
   return { ref: parsed };
 }
 
+/**
+ * Look up a bare model ID (no provider prefix) in the configured providers.
+ * Returns the provider name if exactly one provider has a model with that ID.
+ */
+function findProviderForBareModelId(cfg: OpenClawConfig, modelId: string): string | undefined {
+  const providers = cfg.models?.providers;
+  if (!providers || typeof providers !== "object") {
+    return undefined;
+  }
+  const normalized = modelId.toLowerCase();
+  const matches: string[] = [];
+  for (const [providerName, providerCfg] of Object.entries(providers)) {
+    if (!providerCfg || !Array.isArray(providerCfg.models)) {
+      continue;
+    }
+    for (const model of providerCfg.models) {
+      if (model?.id && model.id.toLowerCase() === normalized) {
+        matches.push(providerName);
+        break;
+      }
+    }
+  }
+  if (matches.length === 1) {
+    return matches[0];
+  }
+  return undefined;
+}
+
 export function resolveConfiguredModelRef(params: {
   cfg: OpenClawConfig;
   defaultProvider: string;
@@ -311,6 +339,12 @@ export function resolveConfiguredModelRef(params: {
       const aliasMatch = aliasIndex.byAlias.get(aliasKey);
       if (aliasMatch) {
         return aliasMatch.ref;
+      }
+
+      // Before defaulting to anthropic, check configured providers for a matching model ID.
+      const providerMatch = findProviderForBareModelId(params.cfg, trimmed);
+      if (providerMatch) {
+        return { provider: providerMatch, model: trimmed };
       }
 
       // Default to anthropic if no provider is specified, but warn as this is deprecated.

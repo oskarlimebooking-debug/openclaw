@@ -6,6 +6,7 @@ import { syncUrlWithSessionKey } from "./app-settings.ts";
 import type { AppViewState } from "./app-view-state.ts";
 import { OpenClawApp } from "./app.ts";
 import { ChatState, loadChatHistory } from "./controllers/chat.ts";
+import { patchSession } from "./controllers/sessions.ts";
 import { icons } from "./icons.ts";
 import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation.ts";
 import type { ThemeTransitionContext } from "./theme-transition.ts";
@@ -122,6 +123,63 @@ function renderCronFilterIcon(hiddenCount: number) {
   `;
 }
 
+function renderModelPicker(state: AppViewState) {
+  const catalog = state.chatModelCatalog ?? [];
+  if (catalog.length === 0) {
+    return html``;
+  }
+  const activeSession = state.sessionsResult?.sessions?.find((row) => row.key === state.sessionKey);
+  const currentModel = activeSession?.model || state.sessionsResult?.defaults?.model || "";
+  const currentProvider = activeSession?.modelProvider || "";
+  const currentRef =
+    currentProvider && currentModel ? `${currentProvider}/${currentModel}` : currentModel;
+
+  // Group models by provider for the dropdown.
+  const groups = new Map<string, Array<{ id: string; name: string; provider: string }>>();
+  for (const m of catalog) {
+    const provider = m.provider || "other";
+    if (!groups.has(provider)) {
+      groups.set(provider, []);
+    }
+    groups.get(provider)!.push(m);
+  }
+
+  return html`
+    <label class="field chat-controls__model" title="Model">
+      <select
+        .value=${currentRef}
+        ?disabled=${!state.connected}
+        @change=${(e: Event) => {
+          const next = (e.target as HTMLSelectElement).value;
+          if (next && next !== currentRef) {
+            void patchSession(state as unknown as OpenClawApp, state.sessionKey, { model: next });
+          }
+        }}
+      >
+        ${
+          currentRef
+            ? html`<option value=${currentRef} selected>${currentRef}</option>`
+            : html`
+                <option value="" selected disabled>Select model</option>
+              `
+        }
+        ${[...groups.entries()].map(
+          ([provider, models]) => html`
+            <optgroup label=${provider}>
+              ${models.map((m) => {
+                const ref = `${m.provider}/${m.id}`;
+                return ref === currentRef
+                  ? html``
+                  : html`<option value=${ref}>${m.name || m.id}</option>`;
+              })}
+            </optgroup>
+          `,
+        )}
+      </select>
+    </label>
+  `;
+}
+
 export function renderChatControls(state: AppViewState) {
   const mainSessionKey = resolveMainSessionKey(state.hello, state.sessionsResult);
   const hideCron = state.sessionsHideCron ?? true;
@@ -211,6 +269,7 @@ export function renderChatControls(state: AppViewState) {
           )}
         </select>
       </label>
+      ${renderModelPicker(state)}
       <button
         class="btn btn--sm btn--icon"
         ?disabled=${state.chatLoading || !state.connected}

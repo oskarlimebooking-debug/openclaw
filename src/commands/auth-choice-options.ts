@@ -186,6 +186,12 @@ const AUTH_CHOICE_GROUP_DEFS: {
     choices: ["litellm-api-key"],
   },
   {
+    value: "merlin",
+    label: "Merlin AI",
+    hint: "Free multi-model access (email + password)",
+    choices: ["merlin"],
+  },
+  {
     value: "cloudflare-ai-gateway",
     label: "Cloudflare AI Gateway",
     hint: "Account ID + Gateway ID + API key",
@@ -328,6 +334,11 @@ const BASE_AUTH_CHOICE_OPTIONS: ReadonlyArray<AuthChoiceOption> = [
     value: "modelstudio-api-key",
     label: "Coding Plan API Key for Global/Intl (subscription)",
     hint: "Endpoint: coding-intl.dashscope.aliyuncs.com",
+  },
+  {
+    value: "merlin",
+    label: "Merlin AI (email + password)",
+    hint: "Free multi-model access via getmerlin.in",
   },
   { value: "custom-api-key", label: "Custom Provider" },
 ];

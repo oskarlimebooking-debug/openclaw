@@ -7,6 +7,7 @@ import { applyAuthChoiceBytePlus } from "./auth-choice.apply.byteplus.js";
 import { applyAuthChoiceCopilotProxy } from "./auth-choice.apply.copilot-proxy.js";
 import { applyAuthChoiceGitHubCopilot } from "./auth-choice.apply.github-copilot.js";
 import { applyAuthChoiceGoogleGeminiCli } from "./auth-choice.apply.google-gemini-cli.js";
+import { applyAuthChoiceMerlin } from "./auth-choice.apply.merlin.js";
 import { applyAuthChoiceMiniMax } from "./auth-choice.apply.minimax.js";
 import { applyAuthChoiceOAuth } from "./auth-choice.apply.oauth.js";
 import { applyAuthChoiceOllama } from "./auth-choice.apply.ollama.js";
@@ -43,6 +44,7 @@ export async function applyAuthChoice(
     applyAuthChoiceOpenAI,
     applyAuthChoiceOAuth,
     applyAuthChoiceApiProviders,
+    applyAuthChoiceMerlin,
     applyAuthChoiceMiniMax,
     applyAuthChoiceGitHubCopilot,
     applyAuthChoiceGoogleGeminiCli,
